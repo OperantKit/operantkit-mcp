@@ -1,0 +1,79 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "operantkit-mcp"
+dynamic = ["version"]
+description = "MCP server (stdio) that lets an AI assistant check, simulate, and describe reinforcement schedules written in contingency-dsl."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [{ name = "OperantKit contributors" }]
+keywords = [
+    "behavior-analysis",
+    "operant-conditioning",
+    "reinforcement-schedule",
+    "mcp",
+    "model-context-protocol",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "mcp>=2,<3",
+    "contingency-dsl-py>=0.1.1,<0.2",
+    "contingency-py>=0.1.1,<0.2",
+    "contingency-dsl2procedure>=0.1.1,<0.2",
+    "contingency-procedure2dsl>=0.1.1,<0.2",
+    "experiment-core>=0.1.1,<0.2",
+    "session-runner>=0.1.1,<0.2",
+    "session-recorder>=0.1.1,<0.2",
+    "experiment-io>=0.1.1,<0.2",
+]
+
+[project.optional-dependencies]
+analysis = ["session-analyzer>=0.1.1,<0.2"]
+test = [
+    "pytest>=8",
+    "pytest-cov",
+]
+
+[project.scripts]
+operantkit-mcp = "operantkit_mcp.server:main"
+
+[project.urls]
+Homepage = "https://github.com/OperantKit"
+Repository = "https://github.com/OperantKit/operantkit-mcp"
+
+[tool.hatch.version]
+source = "vcs"
+fallback-version = "0.0.0"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "src/operantkit_mcp/_version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/operantkit_mcp"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+markers = [
+    "unit: unit-level tests",
+    "integration: integration-level tests spanning modules",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP", "B"]
+ignore = ["E501"]
