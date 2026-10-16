@@ -36,10 +36,10 @@ dependencies = [
     "session-runner>=0.1.1,<0.2",
     "session-recorder>=0.1.1,<0.2",
     "experiment-io>=0.1.1,<0.2",
+    "session-analyzer>=0.1.1,<0.2",
 ]
 
 [project.optional-dependencies]
-analysis = ["session-analyzer>=0.1.1,<0.2"]
 test = [
     "pytest>=8",
     "pytest-cov",

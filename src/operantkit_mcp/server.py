@@ -4,14 +4,16 @@ from __future__ import annotations
 
 from mcp.server import MCPServer
 
-from . import dsl_tools
+from . import dsl_tools, okl_tools
 from .simulate import SimulationResult
 from .simulate import simulate as _simulate
 
 INSTRUCTIONS = (
     "Tools for designing reinforcement schedules with contingency-dsl. "
     "Write the schedule as one DSL expression (e.g. 'FR 5', 'Conc(VI30s, VI60s, COD=2s)') "
-    "and call check_dsl first; use its canonical form afterwards."
+    "and call check_dsl first; use its canonical form afterwards. "
+    "simulate with output_path writes an OKL v1 log; read it with summarize_okl "
+    "and analyze_okl."
 )
 
 mcp = MCPServer(name="operantkit", instructions=INSTRUCTIONS)
@@ -70,6 +72,35 @@ def method_to_dsl(text: str) -> dsl_tools.MethodToDslResult:
     No LLM is used. Read `unrecognized_fragments` yourself and fill gaps manually.
     """
     return dsl_tools.method_to_dsl(text)
+
+
+@mcp.tool()
+def summarize_okl(path: str) -> okl_tools.OklSummary:
+    """Summarize an OKL v1 session log (the file simulate writes with output_path).
+
+    Returns the session name, the DSL from the header, clock type, session
+    length in seconds, counts per event type, responses and reinforcers per
+    operandum, and phase markers.
+    """
+    return okl_tools.summarize_okl(path)
+
+
+@mcp.tool()
+def analyze_okl(
+    path: str,
+    analyses: list[okl_tools.Analysis] | None = None,
+    png_path: str | None = None,
+) -> okl_tools.OklAnalysis:
+    """Analyze an OKL v1 session log.
+
+    analyses: any of "prps" (post-reinforcement pauses), "irt" (inter-response
+    times pooled over operanda), "bouts" (two-component log-normal bout
+    analysis), "matching" (one-condition generalized matching for operanda 0
+    and 1); default all. Analyses that cannot be computed are null and
+    explained in notes. When png_path is given, the cumulative record is
+    written there as PNG.
+    """
+    return okl_tools.analyze_okl(path, analyses=analyses, png_path=png_path)
 
 
 def main() -> None:
