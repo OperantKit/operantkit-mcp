@@ -17,7 +17,7 @@ An MCP server (stdio) that lets an AI assistant design reinforcement schedules w
 
 All tools return structured content with a published output schema.
 
-- `simulate` runs on a virtual clock: a session of minutes finishes in well under a second. The same `seed` gives the same result. A concurrent schedule gets one independent Poisson responder per component. Seed VI/VR/VT values with `@algorithm(seed=N)` in the DSL.
+- `simulate` runs on a virtual clock: a session of minutes finishes in well under a second. The same `seed` gives the same result. A concurrent schedule gets one independent Poisson responder per component. Between responses the clock advances in 10-ms ticks, so FT, VT, DRO, and limited holds run even when the subject does not respond. Seed VI/VR/VT values with `@algorithm(seed=N)` in the DSL.
 - `method_to_dsl` uses the rule-based extractor only. No LLM is called; read `unrecognized_fragments` and fill the gaps yourself.
 - `analyze_okl` pools inter-response times over operanda. `matching` needs responses on operanda 0 and 1 and gives a one-condition estimate (log b fixed at 0); fit several conditions for a real bias estimate. An analysis that cannot be computed is `null` and explained in `notes`.
 
