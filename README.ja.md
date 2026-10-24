@@ -12,17 +12,24 @@ Claude Code では、[claude-plugin](https://github.com/OperantKit/claude-plugin
 
 ## インストール
 
-Python 3.11 以上が必要です。OperantKit の各パッケージはまだ PyPI に登録されていないので、GitHub から依存の解決なしで入れ、その後で必要な外部ライブラリ 4 つを入れます:
+
+Python 3.11 以上が必要です。OperantKit の各パッケージはまだ PyPI に登録されていないので、GitHub から一緒に入れます。必要な外部ライブラリ 4 つ（`mcp`・NumPy・SciPy・Matplotlib）は PyPI から入ります:
 
 ```bash
-G=git+https://github.com/OperantKit
-pip install --no-deps $G/contingency-dsl-py $G/contingency-py $G/contingency-dsl2procedure \
-  $G/contingency-procedure2dsl $G/experiment-core $G/session-runner $G/session-recorder \
-  $G/experiment-io $G/session-analyzer $G/operantkit-mcp
-pip install "mcp>=2,<3" numpy scipy matplotlib
+# PyPI に公開されるまでは、OperantKit の依存と一緒に GitHub から入れる。
+pip install git+https://github.com/OperantKit/contingency-dsl-py \
+            git+https://github.com/OperantKit/contingency-py \
+            git+https://github.com/OperantKit/contingency-dsl2procedure \
+            git+https://github.com/OperantKit/contingency-procedure2dsl \
+            git+https://github.com/OperantKit/experiment-core \
+            git+https://github.com/OperantKit/session-runner \
+            git+https://github.com/OperantKit/session-recorder \
+            git+https://github.com/OperantKit/experiment-io \
+            git+https://github.com/OperantKit/session-analyzer \
+            git+https://github.com/OperantKit/operantkit-mcp
 ```
 
-これで環境に `operantkit-mcp` コマンドが入ります。`pip check` は OperantKit の開発版どうしのバージョンの食い違いを報告しますが、サーバの動作には影響しません。
+これで環境に `operantkit-mcp` コマンドが入ります。依存は pip が解決するので、`pip check` は何も報告しません。
 
 ## アシスタントへの登録
 
