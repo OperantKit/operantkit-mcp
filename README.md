@@ -62,7 +62,7 @@ The sensitivity of 0 is expected: the simulated subject responds at the same con
 | Tool | Input | Output |
 |---|---|---|
 | `check_dsl` | `source` | `ok`, `canonical` (normalized expression), `ast`, `warnings`, `error` (`type`, `message`); errors are returned as data |
-| `simulate` | `source`, one of `exit_reinforcers` / `exit_time` (s), `virtual_rate_hz` (1.0), `seed` (0), `reinforcer_duration` (0.5), `output_path` | `session_seconds`, `counts` per event type, `responses_per_operandum`, `reinforcers_per_operandum`, response and reinforcement rates per minute, `okl_path` |
+| `simulate` | `source`, one of `exit_reinforcers` / `exit_time` (s), `virtual_rate_hz` (1.0), `seed` (0), `reinforcer_duration` (0.5), `output_path`, `overwrite` (false) | `session_seconds`, `counts` per event type, `responses_per_operandum`, `reinforcers_per_operandum`, response and reinforcement rates per minute, `okl_path`. If `output_path` already has content, nothing is run and `ok` is false with `error` (`type`, `message`); pass `overwrite=true` to replace the file |
 | `dsl_to_method` | `source`, `style` (`jeab` English / `jaba` Japanese) | `subjects`, `apparatus`, `procedure`, `references`, `markdown` |
 | `method_to_dsl` | `text` (Method-section prose) | `dsl`, `schedules` (with `confidence` and `source_text`), `params`, `unrecognized_fragments` |
 | `summarize_okl` | `path` (OKL log) | `session_name`, `dsl` (from the header), `clock_type`, `session_seconds`, `counts` per event type, `operanda` (responses and reinforcers per operandum), `phase_markers` |

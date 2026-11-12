@@ -60,6 +60,27 @@ class TestSimulate:
         assert r.okl_path == str(out.resolve())
         assert out.read_text().strip()
 
+    def test_existing_output_path_is_error_data(self, tmp_path):
+        out = tmp_path / "a.okl"
+        first = simulate("FR3", exit_reinforcers=2, output_path=str(out))
+        before = out.read_bytes()
+        second = simulate("FR3", exit_reinforcers=2, output_path=str(out))
+        assert first.ok is True and first.error is None
+        assert second.ok is False
+        assert second.error.type == "FileExistsError"
+        assert str(out) in second.error.message
+        assert second.okl_path is None
+        assert out.read_bytes() == before
+
+    def test_overwrite_replaces_existing_log(self, tmp_path):
+        out = tmp_path / "a.okl"
+        first = simulate("FR3", exit_reinforcers=2, output_path=str(out))
+        before = out.read_text()
+        again = simulate("FR3", exit_reinforcers=2, output_path=str(out), overwrite=True)
+        assert again.ok is True
+        assert again.reinforcers_per_operandum == first.reinforcers_per_operandum
+        assert out.read_text() == before
+
     @pytest.mark.parametrize(
         "kwargs",
         [{}, {"exit_reinforcers": 1, "exit_time": 1.0}, {"exit_reinforcers": 0}, {"exit_time": -1.0}],

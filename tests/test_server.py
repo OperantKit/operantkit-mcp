@@ -65,6 +65,27 @@ def test_bad_exit_is_tool_error():
 
 
 @pytest.mark.integration
+def test_same_output_path_twice_returns_error_data(tmp_path):
+    out = str(tmp_path / "a.okl")
+    args = {"source": "Conc(VI30s, VI60s, COD=2s)", "exit_time": 60, "output_path": out}
+
+    async def go(session):
+        return (
+            await session.call_tool("simulate", args),
+            await session.call_tool("simulate", args),
+            await session.call_tool("simulate", {**args, "overwrite": True}),
+        )
+
+    first, second, third = anyio.run(_with_session, go)
+    assert not first.is_error
+    assert not second.is_error
+    assert second.structured_content["ok"] is False
+    assert second.structured_content["error"]["type"] == "FileExistsError"
+    assert not third.is_error
+    assert third.structured_content["ok"] is True
+
+
+@pytest.mark.integration
 def test_okl_tools_over_stdio(tmp_path):
     png = tmp_path / "fi.png"
 

@@ -38,12 +38,15 @@ def simulate(
     seed: int = 0,
     reinforcer_duration: float = 0.5,
     output_path: str | None = None,
+    overwrite: bool = False,
 ) -> SimulationResult:
     """Simulate the schedule against virtual Poisson subjects on a virtual clock.
 
     Give exactly one of exit_reinforcers or exit_time (seconds). Same seed gives
     the same result. A concurrent schedule gets one responder per component.
-    When output_path is given, an OKL v1 event log is written there.
+    When output_path is given, an OKL v1 event log is written there. If that
+    file already has content, nothing is run and ok=false comes back with
+    `error` (type, message); pass overwrite=true to replace the file.
     """
     return _simulate(
         source,
@@ -53,6 +56,7 @@ def simulate(
         seed=seed,
         reinforcer_duration=reinforcer_duration,
         output_path=output_path,
+        overwrite=overwrite,
     )
 
 

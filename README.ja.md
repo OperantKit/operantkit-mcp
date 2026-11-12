@@ -62,7 +62,7 @@ Claude Code の起動時に有効になっていない仮想環境に入れた�
 | 道具 | 入力 | 出力 |
 |---|---|---|
 | `check_dsl` | `source` | `ok`、`canonical`（正規化した式）、`ast`、`warnings`、`error`（`type`、`message`）。エラーは例外ではなくデータとして返る |
-| `simulate` | `source`、`exit_reinforcers` / `exit_time`（秒）のどちらか一方、`virtual_rate_hz`（1.0）、`seed`（0）、`reinforcer_duration`（0.5）、`output_path` | `session_seconds`、イベント種ごとの `counts`、`responses_per_operandum`、`reinforcers_per_operandum`、毎分の反応率と強化率、`okl_path` |
+| `simulate` | `source`、`exit_reinforcers` / `exit_time`（秒）のどちらか一方、`virtual_rate_hz`（1.0）、`seed`（0）、`reinforcer_duration`（0.5）、`output_path`、`overwrite`（false） | `session_seconds`、イベント種ごとの `counts`、`responses_per_operandum`、`reinforcers_per_operandum`、毎分の反応率と強化率、`okl_path`。`output_path` のファイルに既に中身があるときは実行せず、`ok` が false で `error`（`type`・`message`）を返す。置き換えるときは `overwrite=true` |
 | `dsl_to_method` | `source`、`style`（`jeab` 英語 / `jaba` 日本語） | `subjects`、`apparatus`、`procedure`、`references`、`markdown` |
 | `method_to_dsl` | `text`（方法セクションの文章） | `dsl`、`schedules`（`confidence` と `source_text` 付き）、`params`、`unrecognized_fragments` |
 | `summarize_okl` | `path`（OKL ログ） | `session_name`、`dsl`（ヘッダから）、`clock_type`、`session_seconds`、イベント種ごとの `counts`、`operanda`（オペランダムごとの反応数と強化子数）、`phase_markers` |

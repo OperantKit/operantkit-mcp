@@ -29,7 +29,7 @@ from experiment_io.hw.backends.virtual import (
 from session_recorder import OklSink
 from session_runner import SessionConfig, SessionRunner, tee
 
-from .dsl_tools import parse_source
+from .dsl_tools import DslErrorInfo, parse_source
 
 _EVENT_NAMES = {
     "ResponseEvent": "response",
@@ -42,15 +42,21 @@ _EVENT_NAMES = {
 
 @dataclass(frozen=True)
 class SimulationResult:
-    """Summary of one simulated session."""
+    """Summary of one simulated session.
 
-    session_seconds: float
-    counts: dict[str, int]
-    responses_per_operandum: list[int]
-    reinforcers_per_operandum: list[int]
-    response_rate_per_min: float
-    reinforcement_rate_per_min: float
+    When the session could not be run (``ok`` is false), ``error`` says why and
+    the session fields are ``None``.
+    """
+
+    ok: bool = True
+    session_seconds: float | None = None
+    counts: dict[str, int] | None = None
+    responses_per_operandum: list[int] | None = None
+    reinforcers_per_operandum: list[int] | None = None
+    response_rate_per_min: float | None = None
+    reinforcement_rate_per_min: float | None = None
     okl_path: str | None = None
+    error: DslErrorInfo | None = None
 
 
 class _MemorySink:
@@ -172,12 +178,16 @@ def simulate(
     output_path: str | None = None,
     max_steps: int | None = None,
     tick_seconds: float = 0.01,
+    overwrite: bool = False,
 ) -> SimulationResult:
     """Run the schedule against virtual Poisson subjects on a virtual clock.
 
     Give exactly one of ``exit_reinforcers`` or ``exit_time``. ``seed`` seeds
     the virtual subjects; seed VI/VR/VT values with ``@algorithm(seed=N)`` in
     the DSL. When ``output_path`` is given, an OKL v1 log is written there.
+    If that file already has content, nothing is run and the result carries
+    ``ok=False`` with an ``error`` (``FileExistsError``); pass ``overwrite=True``
+    to replace the file instead.
     Between responses the session is ticked every ``tick_seconds``, so
     time-based schedules (FT, VT, DRO, limited holds) run on that resolution.
     """
@@ -190,6 +200,20 @@ def simulate(
     except (DslError, ScheduleConfigError) as exc:
         raise ValueError(f"{type(exc).__name__}: {exc}") from exc
     exit_condition = _build_exit(exit_reinforcers, exit_time)
+    if output_path is not None:
+        existing = Path(output_path)
+        if existing.is_file() and existing.stat().st_size > 0:
+            if not overwrite:
+                return SimulationResult(
+                    ok=False,
+                    error=DslErrorInfo(
+                        "FileExistsError",
+                        f"{existing} already has content; an OKL log must start a fresh "
+                        "file. Give another output_path, or pass overwrite=true to "
+                        "replace it.",
+                    ),
+                )
+            existing.unlink()
 
     clock = ManualClock()
     operanda = _build_operanda(schedule, virtual_rate_hz, seed, clock)
