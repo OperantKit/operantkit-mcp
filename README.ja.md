@@ -52,10 +52,10 @@ Claude Code の起動時に有効になっていない仮想環境に入れた�
 | `check_dsl("Conc(VI 30s, VI 60s, COD=2s)")` | `ok: true`、正規形 `Conc(VI30s, VI60s, COD=2s)` |
 | `check_dsl("FR 0")` | `ok: false`、`ATOMIC_NONPOSITIVE_VALUE: FR must have a positive value (got 0.0); use EXT for extinction` |
 | `dsl_to_method("Conc(VI30s, VI60s, COD=2s)")` | 「Responses were reinforced under a concurrent VI 30-s VI 60-s schedule. A 2-s changeover delay was in effect.」と、参考文献として Fleshler と Hoffman (1962)、Herrnstein (1961) |
-| `simulate("Conc(VI30s, VI60s, COD=2s)", exit_time=1800, output_path="conc.okl")` | セッション時間 1,800 秒。2 つのオペランダムで反応 1,759 回と 1,759 回、強化子 31 回と 21 回。ログを `conc.okl` に書き出し |
-| `analyze_okl("conc.okl", analyses=["matching"])` | 強化の相対頻度 0.596、反応の相対頻度 0.500、感度 0.0 |
+| `simulate('Conc(VI30s, VI60s, COD=2s) @algorithm("fleshler-hoffman", seed=1)', exit_time=1800, output_path="conc.okl")` | セッション時間 1,800 秒。2 つのオペランダムで反応 1,761 回と 1,760 回、強化子 31 回と 20 回。ログを `conc.okl` に書き出し |
+| `analyze_okl("conc.okl", analyses=["matching"])` | 強化の相対頻度 0.608、反応の相対頻度 0.500、感度 0.001 |
 
-感度が 0 になるのは想定どおりです。模擬被験体は、強化にかかわらず両方のオペランダムで同じ一定の率で反応します（「制限」を参照）。このシミュレーションが示すのは、プログラムが各側に何回強化子を提示したか（VI 30 秒側 31 回、VI 60 秒側 21 回）であり、動物が反応をどう配分するかについては何も言いません。
+感度がほぼ 0 になるのは想定どおりです。模擬被験体は、強化にかかわらず両方のオペランダムで同じ一定の率で反応します（「制限」を参照）。このシミュレーションが示すのは、プログラムが各側に何回強化子を提示したか（VI 30 秒側 31 回、VI 60 秒側 20 回）であり、動物が反応をどう配分するかについては何も言いません。`@algorithm("fleshler-hoffman", seed=1)` が VI の値を、`simulate` の `seed`（既定 0）が反応源を固定するので、同じ呼び出しは毎回同じ数値と同じログになります。この注釈が無いと VI の値が実行ごとに変わり、回数も毎回違います。
 
 ## 道具
 
@@ -74,7 +74,7 @@ Claude Code の起動時に有効になっていない仮想環境に入れた�
 
 - **模擬被験体は学習しません。** `simulate` は各オペランダムに `virtual_rate_hz` の独立した Poisson 反応源を付けます。強化によってこれは変わりません。シミュレーションは、スケジュールが何を提示するかを確かめるために使い、行動の予測には使わないでください。
 - **時刻は模擬時間です。** 反応と反応の間は時計が 10 ミリ秒刻みで進むので、固定時間・変動時間・DRO（他行動分化強化）・限定保持は、被験体が反応しなくても働きます。セッション時間は壁時計の時刻ではありません。
-- **VI・VR・VT の値**は Fleshler と Hoffman (1962) の数列に従います。値を固定するには式に `@algorithm(seed=N)` を書きます。`seed` が固定するのは反応源だけです。
+- **VI・VR・VT の値**は Fleshler と Hoffman (1962) の数列に従います。値を固定するには式に `@algorithm("fleshler-hoffman", seed=1)` を書きます（seed は任意の整数）。生成法の名前が先頭で、省略できません。`simulate` 自身の `seed` が固定するのは反応源だけです。
 - **`method_to_dsl` は規則ベースです。** 言語モデルは呼びません。`unrecognized_fragments` を読み、取りこぼした部分を補ってください。
 - **`analyze_okl` のマッチングは 1 条件です。** オペランダム 0 と 1 の反応が必要で、log *b* を 0 に固定します。偏好（バイアス）をきちんと推定するには、複数の条件を [session-analyzer](https://github.com/OperantKit/session-analyzer) で当てはめてください。反応間時間はオペランダムをまとめて扱います。計算できない分析は `null` を返し、理由を `notes` に入れます。
 - **パスはサーバ側のマシン上のものです。** 相対パスの `output_path`・`path`・`png_path` はサーバの作業ディレクトリを基準に解決され、返るパスは絶対パスです。

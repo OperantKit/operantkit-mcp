@@ -52,10 +52,10 @@ For a request such as *"Write a concurrent VI 30-s VI 60-s schedule with a 2-s c
 | `check_dsl("Conc(VI 30s, VI 60s, COD=2s)")` | `ok: true`, canonical form `Conc(VI30s, VI60s, COD=2s)` |
 | `check_dsl("FR 0")` | `ok: false`, `ATOMIC_NONPOSITIVE_VALUE: FR must have a positive value (got 0.0); use EXT for extinction` |
 | `dsl_to_method("Conc(VI30s, VI60s, COD=2s)")` | "Responses were reinforced under a concurrent VI 30-s VI 60-s schedule. A 2-s changeover delay was in effect." with Fleshler and Hoffman (1962) and Herrnstein (1961) as references |
-| `simulate("Conc(VI30s, VI60s, COD=2s)", exit_time=1800, output_path="conc.okl")` | 1,800 s of session time; responses 1,759 and 1,759, reinforcers 31 and 21 on the two operanda; the log written to `conc.okl` |
-| `analyze_okl("conc.okl", analyses=["matching"])` | relative reinforcement 0.596, relative responses 0.500, sensitivity 0.0 |
+| `simulate('Conc(VI30s, VI60s, COD=2s) @algorithm("fleshler-hoffman", seed=1)', exit_time=1800, output_path="conc.okl")` | 1,800 s of session time; responses 1,761 and 1,760, reinforcers 31 and 20 on the two operanda; the log written to `conc.okl` |
+| `analyze_okl("conc.okl", analyses=["matching"])` | relative reinforcement 0.608, relative responses 0.500, sensitivity 0.001 |
 
-The sensitivity of 0 is expected: the simulated subject responds at the same constant rate on both operanda whatever the reinforcement (see Limitations). The simulation shows how many reinforcers the program delivered on each side (31 on VI 30 s, 21 on VI 60 s); it says nothing about how an animal would distribute its responses.
+The sensitivity near 0 is expected: the simulated subject responds at the same constant rate on both operanda whatever the reinforcement (see Limitations). The simulation shows how many reinforcers the program delivered on each side (31 on VI 30 s, 20 on VI 60 s); it says nothing about how an animal would distribute its responses. `@algorithm("fleshler-hoffman", seed=1)` fixes the VI values and `simulate`'s `seed` (default 0) fixes the responders, so the same call gives the same numbers and the same log every time; without the annotation the VI values, and so the counts, differ from run to run.
 
 ## Tools
 
@@ -74,7 +74,7 @@ The sensitivity of 0 is expected: the simulated subject responds at the same con
 
 - **The simulated subject does not learn.** `simulate` gives each operandum an independent Poisson responder at `virtual_rate_hz`; reinforcement does not change it. Use simulation to check what the schedule delivers, not to predict behavior.
 - **Simulated time.** Between responses the clock advances in 10-ms steps, so fixed-time, variable-time, DRO (differential reinforcement of other behavior), and limited-hold contingencies run even when the subject does not respond. Session times are not wall-clock times.
-- **VI, VR, and VT values** follow the Fleshler and Hoffman (1962) progression. To fix them, put `@algorithm(seed=N)` in the expression; `seed` fixes only the responders.
+- **VI, VR, and VT values** follow the Fleshler and Hoffman (1962) progression. To fix them, put `@algorithm("fleshler-hoffman", seed=1)` in the expression, with any whole number as the seed; the generator name comes first and cannot be left out. `simulate`'s own `seed` fixes only the responders.
 - **`method_to_dsl` is rule-based.** No language model is called. Read `unrecognized_fragments` and fill in what it missed.
 - **`analyze_okl` matching uses one condition.** It needs responses on operanda 0 and 1 and fixes log *b* at 0; fit several conditions with [session-analyzer](https://github.com/OperantKit/session-analyzer) for a real bias estimate. Inter-response times are pooled over operanda. An analysis that cannot be computed returns `null` with the reason in `notes`.
 - **Paths are on the server's machine.** Relative `output_path`, `path`, and `png_path` are resolved against the server's working directory; the returned paths are absolute.

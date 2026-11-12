@@ -183,7 +183,7 @@ def simulate(
     """Run the schedule against virtual Poisson subjects on a virtual clock.
 
     Give exactly one of ``exit_reinforcers`` or ``exit_time``. ``seed`` seeds
-    the virtual subjects; seed VI/VR/VT values with ``@algorithm(seed=N)`` in
+    the virtual subjects; seed VI/VR/VT values with ``@algorithm("fleshler-hoffman", seed=N)`` in
     the DSL. When ``output_path`` is given, an OKL v1 log is written there.
     If that file already has content, nothing is run and the result carries
     ``ok=False`` with an ``error`` (``FileExistsError``); pass ``overwrite=True``
